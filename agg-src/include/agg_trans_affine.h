@@ -20,7 +20,6 @@
 #define AGG_TRANS_AFFINE_INCLUDED
 
 #include <cmath>
-#include "agg_basics.h"
 
 namespace agg
 {
@@ -318,8 +317,8 @@ namespace agg
     //------------------------------------------------------------------------
     inline double trans_affine::scale() const
     {
-        double x = 0.707106781 * sx  + 0.707106781 * shx;
-        double y = 0.707106781 * shy + 0.707106781 * sy;
+        double x = 0.70710678118654752440 * sx  + 0.70710678118654752440 * shx;
+        double y = 0.70710678118654752440 * shy + 0.70710678118654752440 * sy;
         return std::sqrt(x*x + y*y);
     }
 

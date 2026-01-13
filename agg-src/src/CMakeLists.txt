@@ -1,7 +1,3 @@
-SET( util_HEADERS
-  ${antigrain_SOURCE_DIR}/include/util/agg_color_conv_rgb8.h
-  ${antigrain_SOURCE_DIR}/include/util/agg_color_conv_rgb16.h
-  ${antigrain_SOURCE_DIR}/include/util/agg_color_conv.h )
 
 SET( antigrain_HEADERS
     ${antigrain_SOURCE_DIR}/include/agg_alpha_mask_u8.h
@@ -59,6 +55,7 @@ SET( antigrain_HEADERS
     ${antigrain_SOURCE_DIR}/include/agg_path_storage_integer.h
     ${antigrain_SOURCE_DIR}/include/agg_pattern_filters_rgba.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_amask_adaptor.h
+    ${antigrain_SOURCE_DIR}/include/agg_pixfmt_base.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_gray.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_rgb.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_rgb_packed.h
@@ -69,6 +66,7 @@ SET( antigrain_HEADERS
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_outline.h
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_outline_aa.h
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_scanline_aa.h
+    ${antigrain_SOURCE_DIR}/include/agg_rasterizer_scanline_aa_nogamma.h
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_sl_clip.h
     ${antigrain_SOURCE_DIR}/include/agg_renderer_base.h
     ${antigrain_SOURCE_DIR}/include/agg_renderer_markers.h
@@ -132,7 +130,7 @@ SET( antigrain_HEADERS
     ${antigrain_SOURCE_DIR}/include/agg_span_gradient_image.h
 )
 
-ADD_LIBRARY( antigrain
+ADD_LIBRARY( agg STATIC
 
     agg_arc.cpp
     agg_arrowhead.cpp
@@ -162,124 +160,47 @@ ADD_LIBRARY( antigrain
     ${antigrain_HEADERS}
 )
 
+ADD_LIBRARY ( agg_internal INTERFACE )
+ADD_LIBRARY( agg::agg ALIAS agg_internal )
+TARGET_LINK_LIBRARIES( agg_internal INTERFACE agg )
 #controls code for interactive modifying samples
-SET( controls_HEADERS
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_slider_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_spline_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_scale_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_rbox_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_polygon_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_gamma_spline.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_gamma_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_cbox_ctrl.h
-    ${antigrain_SOURCE_DIR}/include/ctrl/agg_bezier_ctrl.h
-)
+IF ( agg_BUILD_CONTROLS )
 
-ADD_LIBRARY( controls
-    ctrl/agg_spline_ctrl.cpp
-    ctrl/agg_slider_ctrl.cpp
-    ctrl/agg_scale_ctrl.cpp
-    ctrl/agg_rbox_ctrl.cpp
-    ctrl/agg_polygon_ctrl.cpp
-    ctrl/agg_gamma_spline.cpp
-    ctrl/agg_gamma_ctrl.cpp
-    ctrl/agg_cbox_ctrl.cpp
-    ctrl/agg_bezier_ctrl.cpp
+    ADD_SUBDIRECTORY( ctrl )
 
-    ${controls_HEADERS}
-)
+ENDIF ( agg_BUILD_CONTROLS )
 
-#freetype library
+# the main include dir of Agg
+TARGET_INCLUDE_DIRECTORIES( agg PUBLIC
+    $<BUILD_INTERFACE:${antigrain_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/agg>)
 
-IF ( agg_USE_FREETYPE )
-
-    INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_freetype )
-
-    ADD_LIBRARY( freetypefont
-        ../font_freetype/agg_font_freetype.h
-        ../font_freetype/agg_font_freetype.cpp
-    )
-    SET_TARGET_PROPERTIES( freetypefont  PROPERTIES OUTPUT_NAME aggfontfreetype${PFDEBUG} )
-    INSTALL( TARGETS freetypefont DESTINATION lib )
-	INSTALL( FILES ../font_freetype/agg_font_freetype.h DESTINATION agg/font_freetype )
-ENDIF ( agg_USE_FREETYPE )
 
 #platform stuff to ease sample use
-SET( platform_HEADERS
-    ${antigrain_SOURCE_DIR}/include/platform/agg_platform_support.h
+IF( agg_BUILD_PLATFORM )
+
+    ADD_SUBDIRECTORY( platform )
+
+ENDIF( agg_BUILD_PLATFORM )
+
+SET_TARGET_PROPERTIES(
+    agg
+    PROPERTIES
+    PUBLIC_HEADER "${antigrain_HEADERS}"
+    VERSION ${agg_VERSION}
+    SOVERSION 0.${agg_VERSION}
 )
 
-IF(WIN32)
-    INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/font_win32_tt )
+INSTALL(TARGETS agg
+    EXPORT aggTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT devel
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/agg COMPONENT devel
+)
 
-    ADD_LIBRARY( platform
-        ../src/platform/win32/agg_win32_bmp.cpp
-        ../src/platform/win32/agg_platform_support.cpp
-        ../font_win32_tt/agg_font_win32_tt.cpp
-
-		${platform_HEADERS}
-    )
-	INSTALL( FILES ../font_win32_tt/agg_font_win32_tt.h DESTINATION agg/font_win32_tt )
-ENDIF(WIN32)
-IF(UNIX)
-    ADD_LIBRARY( platform
-        ../src/platform/X11/agg_platform_support.cpp
-
-		${platform_HEADERS}
-    )
-ENDIF(UNIX)
-IF(APPLE)
-    ADD_LIBRARY( platform
-        ../src/platform/mac/agg_mac_pmap.cpp
-        ../src/platform/mac/agg_platform_support.cpp
-
-		${platform_HEADERS}
-    )
-ENDIF(APPLE)
-
-IF( SDL_FOUND AND agg_USE_SDL_PLATFORM )
-    ADD_LIBRARY( sdlplatform
-        ../src/platform/sdl/agg_platform_support.cpp
-
-		${platform_HEADERS}
-    )
-    INSTALL( TARGETS sdlplatform DESTINATION lib )
-    SET_TARGET_PROPERTIES( sdlplatform  PROPERTIES OUTPUT_NAME aggsdlplatform${PFDEBUG} )
-ENDIF( SDL_FOUND AND agg_USE_SDL_PLATFORM )
-
-# boolean operations library GPC
-
-IF ( agg_USE_GPC )
-    INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/gpc )
-
-    ADD_LIBRARY( gpcbool
-        ../gpc/gpc.c
-        ../gpc/gpc.h
-    )
-    INSTALL( TARGETS gpcbool DESTINATION lib )
-	INSTALL( FILES ../gpc/gpc.h DESTINATION agg/gpc )
-    SET_TARGET_PROPERTIES( gpcbool   PROPERTIES OUTPUT_NAME gpc${PFDEBUG} )
-ENDIF ( agg_USE_GPC )
-
-IF ( agg_USE_AGG2D )
-    INCLUDE_DIRECTORIES( ${antigrain_SOURCE_DIR}/agg2d )
-
-    ADD_LIBRARY( agg2d
-        ../agg2d/agg2d.cpp
-        ../agg2d/agg2d.h
-    )
-    INSTALL( TARGETS agg2d DESTINATION lib )
-	INSTALL( FILES ../agg2d/agg2d.h DESTINATION agg/agg2d )
-    SET_TARGET_PROPERTIES( agg2d  PROPERTIES OUTPUT_NAME agg2d${PFDEBUG} )
-ENDIF ( agg_USE_AGG2D )
-
-SET_TARGET_PROPERTIES( antigrain PROPERTIES OUTPUT_NAME agg${PFDEBUG} )
-SET_TARGET_PROPERTIES( controls  PROPERTIES OUTPUT_NAME aggctrl${PFDEBUG} )
-SET_TARGET_PROPERTIES( platform  PROPERTIES OUTPUT_NAME aggplatform${PFDEBUG} )
-
-INSTALL( FILES ${antigrain_HEADERS} DESTINATION include/agg2 )
-INSTALL( FILES ${controls_HEADERS} DESTINATION include/agg2/ctrl )
-INSTALL( FILES ${platform_HEADERS} DESTINATION include/agg2/platform )
-INSTALL( FILES ${util_HEADERS} DESTINATION include/agg2/util )
-INSTALL( TARGETS antigrain controls platform DESTINATION lib )
+INSTALL(EXPORT aggTargets
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/agg/
+    FILE aggTargets.cmake
+    NAMESPACE ${PROJECT_NAME}::
+    COMPONENT devel
+)
