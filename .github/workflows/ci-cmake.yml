@@ -51,8 +51,8 @@ jobs:
                 -Dagg_BUILD_EXAMPLES:BOOL=ON
                 -Dagg_BUILD_PLATFORM:BOOL=ON
                 -Dagg_USE_AGG2D:BOOL=ON
-                -Dagg_USE_AGG2D_FREETYPE:BOOL=ON
-                -Dagg_USE_FREETYPE:BOOL=ON
+                -Dagg_USE_AGG2D_FREETYPE:BOOL=OFF
+                -Dagg_USE_FREETYPE:BOOL=OFF
                 -Dagg_USE_GPC:BOOL=ON
                 -B "${{github.workspace}}/build" .
 
