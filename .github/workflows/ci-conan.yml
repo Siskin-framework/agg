@@ -37,6 +37,7 @@ jobs:
 
           - name: Run conan
             run: |
+                cd ${{github.workspace}}/agg-src
                 conan create . --build=missing -pr:b=default
 
     GCC:
@@ -63,5 +64,6 @@ jobs:
               
           - name: Run conan
             run: |
+                cd ${{github.workspace}}/agg-src
                 conan create . --build=missing -pr:b=default
 

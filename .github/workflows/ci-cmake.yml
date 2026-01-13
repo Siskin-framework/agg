@@ -39,6 +39,7 @@ jobs:
           - name: Run conan
             run: |
                 mkdir ${{github.workspace}}/build
+                cd ${{github.workspace}}/agg-src
                 conan install  . --build=missing -pr:b=default -if ${{github.workspace}}/build
           - name: Configure CMake
             run: >-
