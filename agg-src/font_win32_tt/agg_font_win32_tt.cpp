@@ -470,6 +470,18 @@ namespace agg
             }
             else
             {
+#ifdef _UNICODE
+// When compiled with Unicode support, treat font name input as UTF-8 encoded
+// and convert it to Windows wide characters before calling CreateFont.
+// The typeface string length must not exceed 32 characters, so 256 bytes is safe.
+    wchar_t wname[256];
+    MultiByteToWideChar(CP_UTF8, 0, m_typeface, len, wname, 256);
+    #define M_TYPEFACE wname
+#else
+// Use the name as-is.
+    #define M_TYPEFACE m_typeface
+#endif
+
                 m_cur_font = ::CreateFont(-h,                     // height of font
                                           w,                      // average character width
                                           0,                      // angle of escapement
@@ -483,7 +495,9 @@ namespace agg
                                           CLIP_DEFAULT_PRECIS,    // clipping precision
                                           ANTIALIASED_QUALITY,    // output quality
                                           m_pitch_and_family,     // pitch and family
-                                          m_typeface);            // typeface name
+                                          M_TYPEFACE);            // typeface name
+#undef M_TYPEFACE
+
                 if(m_cur_font)
                 {
                     if(m_num_fonts >= m_max_fonts)
