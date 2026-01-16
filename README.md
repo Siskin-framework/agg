@@ -49,11 +49,10 @@ These licenses allow for free use in commercial software.
 There exists an AGG 2.5 that was created with a GNU GPL License, with no other changes from 2.4.
 The AGG 2.5 version is not included here nor in the Sourceforge repositories.
 
-There remains a seperate license for the General Polygon Clipper (GPC) code, which
-is free only in non-commercial software. However, GPC is not an obligatory part of AGG
-and can be easily removed.
+The General Polygon Clipper (GPC) code, originally free for non-commercial use only,
+has been updated to the latest version 2.33, which was [released under the MIT License](https://github.com/rickbrew/GeneralPolygonClipper).
 
-Refer to [License HTML](https://github.com/ghaerr/agg-2.6/blob/master/agg-web/license/index.html)
+Refer to the original [License HTML](https://github.com/ghaerr/agg-2.6/blob/master/agg-web/license/index.html)
 for license texts and GPC details.
 
 ## Building
