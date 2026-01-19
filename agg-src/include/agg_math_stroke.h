@@ -30,7 +30,11 @@ namespace agg
     {
         butt_cap,
         square_cap,
-        round_cap
+        round_cap,
+        round_revert_cap,
+        triangle_cap,
+        triangle_revert_cap,
+        max_cap
     };
 
     //------------------------------------------------------------line_join_e
@@ -327,24 +331,38 @@ namespace agg
         dx1 *= m_width;
         dy1 *= m_width;
 
-        if(m_line_cap != round_cap)
-        {
-            if(m_line_cap == square_cap)
-            {
-                dx2 = dy1 * m_width_sign;
-                dy2 = dx1 * m_width_sign;
-            }
+        switch (m_line_cap) {
+        case square_cap:
+            dx2 = dy1 * m_width_sign;
+            dy2 = dx1 * m_width_sign;
+            AGG_FALLTHROUGH
+        case butt_cap:
             add_vertex(vc, v0.x - dx1 - dx2, v0.y + dy1 - dy2);
             add_vertex(vc, v0.x + dx1 - dx2, v0.y - dy1 - dy2);
+            return;
+        case triangle_cap:
+        case triangle_revert_cap:
+            dx2 = dy1 * m_width_sign;
+            dy2 = dx1 * m_width_sign;
+            
+            add_vertex(vc, v0.x, v0.y + dy1 - dy2);
+            if (m_line_cap == triangle_revert_cap) {
+                add_vertex(vc, v0.x + dx1 + dx2, v0.y);
+            } else {
+                add_vertex(vc, v0.x - dx1 - dx2, v0.y);
+            }
+            add_vertex(vc, v0.x, v0.y - dy1 - dy2);
+            return;
         }
-        else
-        {
-            double da = std::acos(m_width_abs / (m_width_abs + 0.125 / m_approx_scale)) * 2;
-            double a1;
-            int i;
-            int n = int(pi / da);
 
-            da = pi / (n + 1);
+
+        double da = std::acos(m_width_abs / (m_width_abs + 0.125 / m_approx_scale)) * 2;
+        double a1;
+        int i;
+        int n = int(pi / da);
+        da = pi / (n + 1);
+
+        if (m_line_cap == round_cap) {
             add_vertex(vc, v0.x - dx1, v0.y + dy1);
             if(m_width_sign > 0)
             {
@@ -369,6 +387,39 @@ namespace agg
                 }
             }
             add_vertex(vc, v0.x + dx1, v0.y - dy1);
+        }
+        else { // round_revert_cap
+            dx2 = dy1 * m_width_sign;
+            dy2 = dx1 * m_width_sign;
+            double arc_radius = m_width_abs * 0.65;
+            
+            // Start from extended position (like square_cap).
+            add_vertex(vc, v0.x - dx1 - dx2, v0.y + dy1 - dy2);
+            if(m_width_sign > 0)
+            {
+                a1 = std::atan2(dy1, -dx1);
+                a1 += da;
+                for(i = 0; i < n; i++)
+                {
+                    double rx = std::cos(a1) * m_width;
+                    double ry = std::sin(a1) * m_width;
+                    add_vertex(vc, v0.x - rx - dx2, v0.y + ry - dy2);
+                    a1 += da;
+                }
+            }
+            else
+            {
+                a1 = std::atan2(-dy1, dx1);
+                a1 -= da;
+                for(i = 0; i < n; i++)
+                {
+                    double rx = std::cos(a1) * m_width;
+                    double ry = std::sin(a1) * m_width;
+                    add_vertex(vc, v0.x - rx - dx2, v0.y - ry - dy2);
+                    a1 -= da;
+                }
+            }
+            add_vertex(vc, v0.x + dx1 - dx2, v0.y - dy1 - dy2);
         }
     }
 
