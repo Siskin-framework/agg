@@ -21,6 +21,9 @@
 // 2008-09-25 Jim Barry (jim@mvps.org)
 //   Fixed errors in kerning 
 //
+// 2026-01-21 Oldes
+//   Add push/pop graphics state support
+//
 //----------------------------------------------------------------------------
 
 #include "agg2d.h"
@@ -1406,6 +1409,85 @@ void Agg2D::drawPath(DrawPathFlag flag)
             render(false);
         }
         break;
+    }
+}
+
+//------------------------------------------------------------------------
+void Agg2D::pushState() {
+    Agg2DState s;
+    s.clipBox = m_clipBox;
+    s.blendMode = m_blendMode;
+    s.imageBlendMode = m_imageBlendMode;
+    s.imageBlendColor = m_imageBlendColor;
+    s.masterAlpha = m_masterAlpha;
+    s.antiAliasGamma = m_antiAliasGamma;
+    s.fillColor = m_fillColor;
+    s.lineColor = m_lineColor;
+    s.fillGradient = m_fillGradient;
+    s.lineGradient = m_lineGradient;
+    s.lineCap = m_lineCap;
+    s.lineJoin = m_lineJoin;
+    s.fillGradientFlag = m_fillGradientFlag;
+    s.lineGradientFlag = m_lineGradientFlag;
+    s.fillGradientMatrix = m_fillGradientMatrix;
+    s.lineGradientMatrix = m_lineGradientMatrix;
+    s.fillGradientD1 = m_fillGradientD1;
+    s.lineGradientD2 = m_fillGradientD2;
+    s.lineGradientD1 = m_lineGradientD1;
+    s.lineGradientD2 = m_lineGradientD2;
+    s.textAngle = m_textAngle;
+    s.textAlignX = m_textAlignX;
+    s.textAlignY = m_textAlignY;
+    s.textHints = m_textHints;
+    s.fontHeight = m_fontHeight;
+    s.imageFilter = m_imageFilter;
+    s.imageResample = m_imageResample;
+    s.lineWidth = m_lineWidth;
+    s.evenOddFlag = m_evenOddFlag;
+    s.transform = m_transform;
+    s.path = m_path;  // Copies vertices
+    m_stateStack.push_back(s);
+}
+
+void Agg2D::popState() {
+    if (!m_stateStack.empty()) {
+        Agg2DState s = m_stateStack.back();
+        m_stateStack.pop_back();
+        m_clipBox = s.clipBox;
+        m_blendMode = s.blendMode;
+        m_imageBlendMode = s.imageBlendMode;
+        m_imageBlendColor = s.imageBlendColor;
+        m_masterAlpha = s.masterAlpha;
+        m_antiAliasGamma = s.antiAliasGamma;
+        m_fillColor = s.fillColor;
+        m_lineColor = s.lineColor;
+        m_fillGradient = s.fillGradient;
+        m_lineGradient = s.lineGradient;
+        m_lineCap = s.lineCap;
+        m_lineJoin = s.lineJoin;
+        m_fillGradientFlag = s.fillGradientFlag;
+        m_lineGradientFlag = s.lineGradientFlag;
+        m_fillGradientMatrix = s.fillGradientMatrix;
+        m_lineGradientMatrix = s.lineGradientMatrix;
+        m_fillGradientD1 = s.fillGradientD1;
+        m_fillGradientD2 = s.fillGradientD2;
+        m_lineGradientD1 = s.lineGradientD1;
+        m_lineGradientD2 = s.lineGradientD2;
+        m_textAngle = s.textAngle;
+        m_textAlignX = s.textAlignX;
+        m_textAlignY = s.textAlignY;
+        m_textHints = s.textHints;
+        m_fontHeight = s.fontHeight;
+        m_imageFilter = s.imageFilter;
+        m_imageResample = s.imageResample;
+        m_lineWidth = s.lineWidth;
+        m_evenOddFlag = s.evenOddFlag;
+        m_transform = s.transform;
+        m_path = std::move(s.path);
+        // Update derived: rasterizer gamma, conv objects
+        updateRasterizerGamma();
+        m_convCurve.approximation_scale(m_transform.scale());
+        m_convStroke.width(m_lineWidth);
     }
 }
 

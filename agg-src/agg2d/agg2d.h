@@ -59,6 +59,8 @@
 #include "agg_pixfmt_rgba.h"
 #include "agg_image_accessors.h"
 
+#include <vector>
+
 class Agg2D
 {
 #ifdef AGG2D_USE_FLOAT_FORMAT
@@ -254,6 +256,30 @@ public:
     {
         CW, CCW
     };
+
+    struct Agg2DState
+    {
+        RectD clipBox;
+        BlendMode blendMode, imageBlendMode;
+        Color imageBlendColor;
+        double masterAlpha, antiAliasGamma;
+        Color fillColor, lineColor;
+        GradientArray fillGradient, lineGradient;
+        LineCap lineCap;
+        LineJoin lineJoin;
+        Gradient fillGradientFlag, lineGradientFlag;
+        agg::trans_affine fillGradientMatrix, lineGradientMatrix;
+        double fillGradientD1, fillGradientD2, lineGradientD1, lineGradientD2;
+        double textAngle, fontHeight;
+        TextAlignment textAlignX, textAlignY;
+        bool textHints, evenOddFlag;
+        ImageFilter imageFilter;
+        ImageResample imageResample;
+        double lineWidth;
+        agg::trans_affine transform;
+        agg::path_storage path;
+    };
+
 
     ~Agg2D();
     Agg2D();
@@ -496,6 +522,10 @@ public:
     static double deg2Rad(double v) { return v * agg::pi / 180.0; }
     static double rad2Deg(double v) { return v * 180.0 / agg::pi; }
 
+    // Stack
+    void pushState();
+    void popState();
+
 private:
     void render(bool fillColor);
     void render(FontRasterizer& ras, FontScanline& sl);
@@ -582,6 +612,8 @@ private:
 #endif
     FontEngine                      m_fontEngine;
     FontCacheManager                m_fontCacheManager;
+
+    std::vector<Agg2DState>         m_stateStack;
 };
 
 
