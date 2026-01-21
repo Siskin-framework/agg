@@ -71,6 +71,8 @@ Agg2D::Agg2D() :
     m_lineCap(CapRound),
     m_lineJoin(JoinRound),
 
+    m_pointRadius(2,2),
+
     m_fillGradientFlag(Solid),
     m_lineGradientFlag(Solid),
     m_fillGradientMatrix(),
@@ -745,6 +747,21 @@ void Agg2D::line(double x1, double y1, double x2, double y2)
     addLine(x1, y1, x2, y2);
     drawPath(StrokeOnly);
 }
+
+
+//------------------------------------------------------------------------
+void Agg2D::pointSize(double w, double h)
+{
+    m_pointRadius = agg::point_d(w / 2, h / 2);
+}
+
+
+//------------------------------------------------------------------------
+void Agg2D::point(double x, double y)
+{
+    ellipse(x, y, m_pointRadius.x, m_pointRadius.y);
+}
+//TODO: Optimize drawing of multiple points at once.
 
 
 //------------------------------------------------------------------------
@@ -1447,6 +1464,7 @@ void Agg2D::pushState() {
     s.transform = m_transform;
     s.path = m_path;  // Copies vertices
     m_stateStack.push_back(s);
+    s.pointRadius = m_pointRadius;
 }
 
 void Agg2D::popState() {
@@ -1488,6 +1506,7 @@ void Agg2D::popState() {
         updateRasterizerGamma();
         m_convCurve.approximation_scale(m_transform.scale());
         m_convStroke.width(m_lineWidth);
+        m_pointRadius = s.pointRadius;
     }
 }
 

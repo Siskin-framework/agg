@@ -278,6 +278,7 @@ public:
         double lineWidth;
         agg::trans_affine transform;
         agg::path_storage path;
+        agg::point_d pointRadius;
     };
 
 
@@ -360,6 +361,9 @@ public:
     void fillEvenOdd(bool evenOddFlag);
     bool fillEvenOdd() const;
 
+    void pointSize(double w, double h);
+
+
     // Transformations
     //-----------------------
     Transformations transformations() const;
@@ -379,6 +383,7 @@ public:
     // Basic Shapes
     //-----------------------
     void line(double x1, double y1, double x2, double y2);
+    void point(double x1, double y1);
     void triangle(double x1, double y1, double x2, double y2, double x3, double y3);
     void rectangle(double x1, double y1, double x2, double y2);
     void roundedRect(double x1, double y1, double x2, double y2, double r);
@@ -597,6 +602,8 @@ private:
 
     double                          m_lineWidth;
     bool                            m_evenOddFlag;
+
+    agg::point_d                    m_pointRadius;
 
     agg::path_storage               m_path;
     agg::trans_affine               m_transform;
