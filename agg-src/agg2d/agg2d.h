@@ -127,7 +127,9 @@ public:
     {
         JoinMiter = agg::miter_join,
         JoinRound = agg::round_join,
-        JoinBevel = agg::bevel_join
+        JoinBevel = agg::bevel_join,
+        JoinMiterRevert = agg::miter_join_revert,
+        JoinMiterRound  = agg::miter_join_round
     };
 
     enum LineCap
