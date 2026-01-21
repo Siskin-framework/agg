@@ -923,6 +923,17 @@ void Agg2D::polyline(double* xy, int numPoints)
 
 
 //------------------------------------------------------------------------
+void Agg2D::path(agg::path_storage *path)
+{
+    if (path) {
+        m_path.remove_all();
+        m_path.concat_path(*path);
+        drawPath(FillAndStroke);
+    }
+}
+
+
+//------------------------------------------------------------------------
 void Agg2D::flipText(bool flip)
 {
     m_fontEngine.flip_y(flip);
