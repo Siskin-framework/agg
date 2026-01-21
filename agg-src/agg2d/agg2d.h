@@ -409,6 +409,7 @@ public:
                 FontCacheType ch = RasterFontCache,
                 double angle = 0.0);
     double fontHeight() const;
+    void   fontHeight(double height);
     void   textAlignment(TextAlignment alignX, TextAlignment alignY);
     bool   textHints() const;
     void   textHints(bool hints);

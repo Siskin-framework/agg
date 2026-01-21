@@ -552,6 +552,14 @@ namespace agg
     }
 
 
+    //------------------------------------------------------------------------
+    // Recreate existing font with new height
+    bool font_engine_win32_tt_base::fontResize(double height_)
+    {
+        if (height_ == height()) return true;
+        height(height_);
+        return create_font(typeface(), m_glyph_rendering);
+    }
 
 
     //------------------------------------------------------------------------

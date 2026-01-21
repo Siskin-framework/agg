@@ -963,6 +963,15 @@ void Agg2D::font(const char* fontName,
 }
 
 
+void Agg2D::fontHeight(double height)
+{
+#ifdef AGG2D_USE_FREETYPE
+    m_fontEngine.height((m_fontCacheType == VectorFontCache) ? height : worldToScreen(height));
+#else
+    m_fontEngine.fontResize(height);
+#endif
+}
+
 //------------------------------------------------------------------------
 double Agg2D::fontHeight() const
 {

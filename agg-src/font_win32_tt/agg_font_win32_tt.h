@@ -69,6 +69,8 @@ namespace agg
                          DWORD char_set_=ANSI_CHARSET,
                          DWORD pitch_and_family_=FF_DONTCARE);
 
+        bool fontResize(double h);
+
         // Set Gamma
         //--------------------------------------------------------------------
         template<class GammaF> void gamma(const GammaF& f)
