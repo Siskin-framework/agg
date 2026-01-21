@@ -261,7 +261,7 @@ namespace agg
         if(mod < 0)
         {
             delta--;
-            mod += dx;
+            mod += (int)dx;
         }
 
         m_curr_cell.cover += delta;
@@ -280,10 +280,10 @@ namespace agg
             if (rem < 0)
             {
                 lift--;
-                rem += dx;
+                rem += (int)dx;
             }
 
-            mod -= dx;
+            mod -= (int)dx;
 
             while (ex1 != ex2)
             {
@@ -291,7 +291,7 @@ namespace agg
                 mod  += rem;
                 if(mod >= 0)
                 {
-                    mod -= dx;
+                    mod -= (int)dx;
                     delta++;
                 }
 
@@ -441,9 +441,9 @@ namespace agg
             if(rem < 0)
             {
                 lift--;
-                rem += dy;
+                rem += (int)dy;
             }
-            mod -= dy;
+            mod -= (int)dy;
 
             while(ey1 != ey2)
             {
@@ -451,7 +451,7 @@ namespace agg
                 mod  += rem;
                 if (mod >= 0)
                 {
-                    mod -= dy;
+                    mod -= (int)dy;
                     delta++;
                 }
 
