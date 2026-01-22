@@ -150,6 +150,13 @@ public:
         AlignBottom = AlignLeft
     };
 
+    enum ArcType
+    {
+        ArcOpen,
+        ArcPie,
+        ArcChord
+    };
+
 
     enum DrawPathFlag
     {
@@ -395,7 +402,7 @@ public:
                      double rxBottom, double ryBottom,
                      double rxTop,    double ryTop);
     void ellipse(double cx, double cy, double rx, double ry);
-    void arc(double cx, double cy, double rx, double ry, double start, double sweep);
+    void arc(double cx, double cy, double rx, double ry, double start, double sweep, ArcType type = ArcOpen);
     void star(double cx, double cy, double r1, double r2, double startAngle, int numRays);
     void curve(double x1, double y1, double x2, double y2, double x3, double y3);
     void curve(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4);

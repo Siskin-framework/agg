@@ -875,6 +875,19 @@ void Agg2D::arc(double cx, double cy, double rx, double ry, double start, double
     agg::bezier_arc arc(cx, cy, rx, ry, start, sweep);
     //m_path.add_path(arc, 0, false);
     m_path.concat_path(arc,0); // JME
+
+    switch (type) {
+    case ArcOpen:
+        // No closing line.
+        break;
+    case ArcPie:
+        // line from end to center.
+        m_path.line_to(cx, cy);
+        AGG_FALLTHROUGH
+    default:
+        // Line to start.
+        m_path.line_to(cx + rx * cos(start), cy + ry * sin(start));
+    }
     drawPath(StrokeOnly);
 }
 
