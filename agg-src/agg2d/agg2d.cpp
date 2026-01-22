@@ -63,8 +63,8 @@ Agg2D::Agg2D() :
     m_masterAlpha(1.0),
     m_antiAliasGamma(1.0),
 
-    m_fillColor(255, 255, 255),
-    m_lineColor(0,   0,   0),
+    //m_fillColor(128, 128, 128, 255),
+    //m_lineColor(0,   0,   0),
     m_fillGradient(),
     m_lineGradient(),
 
@@ -104,6 +104,9 @@ Agg2D::Agg2D() :
     m_lineWidth(1),
     m_evenOddFlag(false),
 
+    m_hasFill(false),
+    m_hasStroke(true),
+
     m_path(),
     m_transform(),
 
@@ -139,7 +142,7 @@ void Agg2D::attach(unsigned char* buf, unsigned width, unsigned height, int stri
     resetTransformations();
     lineWidth(1.0),
     lineColor(0,0,0);
-    fillColor(255,255,255);
+    fillColor(128,128,128);
     textAlignment(AlignLeft, AlignBottom);
     clipBox(0, 0, width, height);
     lineCap(CapRound);
@@ -426,22 +429,36 @@ void Agg2D::viewport(double worldX1,  double worldY1,  double worldX2,  double w
 
 
 //------------------------------------------------------------------------
+void Agg2D::fillColor(bool hasFill)
+{
+    m_hasFill = hasFill;
+}
+
+//------------------------------------------------------------------------
 void Agg2D::fillColor(Color c)
 {
     m_fillColor = c;
     m_fillGradientFlag = Solid;
+    m_hasFill = c.a > 0;
 }
 
 //------------------------------------------------------------------------
 void Agg2D::fillColor(unsigned r, unsigned g, unsigned b, unsigned a)
 {
     fillColor(Color(r, g, b, a));
+    m_hasFill = a > 0;
 }
 
 //------------------------------------------------------------------------
 void Agg2D::noFill()
 {
-    fillColor(Color(0, 0, 0, 0));
+    m_hasFill = false;
+}
+
+//------------------------------------------------------------------------
+void Agg2D::lineColor(bool hasStroke)
+{
+    m_hasStroke = hasStroke;
 }
 
 //------------------------------------------------------------------------
@@ -449,18 +466,21 @@ void Agg2D::lineColor(Color c)
 {
     m_lineColor = c;
     m_lineGradientFlag = Solid;
+    m_hasStroke = c.a > 0;
 }
 
 //------------------------------------------------------------------------
 void Agg2D::lineColor(unsigned r, unsigned g, unsigned b, unsigned a)
 {
     lineColor(Color(r, g, b, a));
+    m_hasStroke = a > 0;
 }
 
 //------------------------------------------------------------------------
 void Agg2D::noLine()
 {
     lineColor(Color(0, 0, 0, 0));
+    m_hasStroke = false;
 }
 
 //------------------------------------------------------------------------
@@ -849,7 +869,7 @@ void Agg2D::ellipse(double cx, double cy, double rx, double ry)
 
 
 //------------------------------------------------------------------------
-void Agg2D::arc(double cx, double cy, double rx, double ry, double start, double sweep)
+void Agg2D::arc(double cx, double cy, double rx, double ry, double start, double sweep, ArcType type)
 {
     m_path.remove_all();
     agg::bezier_arc arc(cx, cy, rx, ry, start, sweep);
@@ -1410,7 +1430,7 @@ void Agg2D::drawPath(DrawPathFlag flag)
     switch(flag)
     {
     case FillOnly:
-        if (m_fillColor.a)
+        if (m_hasFill)
         {
             m_rasterizer.add_path(m_pathTransform);
             render(true);
@@ -1418,7 +1438,7 @@ void Agg2D::drawPath(DrawPathFlag flag)
         break;
 
     case StrokeOnly:
-        if (m_lineColor.a && m_lineWidth > 0.0)
+        if (m_hasStroke && m_lineWidth > 0.0)
         {
             m_rasterizer.add_path(m_strokeTransform);
             render(false);
@@ -1426,13 +1446,13 @@ void Agg2D::drawPath(DrawPathFlag flag)
         break;
 
     case FillAndStroke:
-        if (m_fillColor.a)
+        if (m_hasFill)
         {
             m_rasterizer.add_path(m_pathTransform);
             render(true);
         }
 
-        if (m_lineColor.a && m_lineWidth > 0.0)
+        if (m_hasStroke && m_lineWidth > 0.0)
         {
             m_rasterizer.add_path(m_strokeTransform);
             render(false);
@@ -1440,7 +1460,7 @@ void Agg2D::drawPath(DrawPathFlag flag)
         break;
 
     case FillWithLineColor:
-        if (m_lineColor.a)
+        if (m_hasStroke)
         {
             m_rasterizer.add_path(m_pathTransform);
             render(false);
@@ -1485,6 +1505,8 @@ void Agg2D::pushState() {
     s.path = m_path;  // Copies vertices
     m_stateStack.push_back(s);
     s.pointRadius = m_pointRadius;
+    s.hasFill = m_hasFill;
+    s.hasStroke = m_hasStroke;
 }
 
 void Agg2D::popState() {
@@ -1527,6 +1549,8 @@ void Agg2D::popState() {
         m_convCurve.approximation_scale(m_transform.scale());
         m_convStroke.width(m_lineWidth);
         m_pointRadius = s.pointRadius;
+        m_hasFill = s.hasFill;
+        m_hasStroke = s.hasStroke;
     }
 }
 

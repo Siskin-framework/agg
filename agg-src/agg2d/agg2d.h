@@ -279,6 +279,7 @@ public:
         agg::trans_affine transform;
         agg::path_storage path;
         agg::point_d pointRadius;
+        bool hasFill, hasStroke;
     };
 
 
@@ -326,10 +327,12 @@ public:
     void antiAliasGamma(double g);
     double antiAliasGamma() const;
 
+    void fillColor(bool hasFill);
     void fillColor(Color c);
     void fillColor(unsigned r, unsigned g, unsigned b, unsigned a = 255);
     void noFill();
 
+    void lineColor(bool hasStroke);
     void lineColor(Color c);
     void lineColor(unsigned r, unsigned g, unsigned b, unsigned a = 255);
     void noLine();
@@ -565,6 +568,9 @@ private:
 
     double                          m_masterAlpha;
     double                          m_antiAliasGamma;
+
+    bool                            m_hasStroke;
+    bool                            m_hasFill;
 
     Color                           m_fillColor;
     Color                           m_lineColor;
