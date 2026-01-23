@@ -888,7 +888,7 @@ void Agg2D::arc(double cx, double cy, double rx, double ry, double start, double
         // Line to start.
         m_path.line_to(cx + rx * cos(start), cy + ry * sin(start));
     }
-    drawPath(StrokeOnly);
+    drawPath(FillAndStroke);
 }
 
 
