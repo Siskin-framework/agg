@@ -138,7 +138,10 @@ public:
     {
         CapButt   = agg::butt_cap,
         CapSquare = agg::square_cap,
-        CapRound  = agg::round_cap
+        CapRound  = agg::round_cap,
+        CapRoundIn = agg::round_revert_cap,
+        CapTriangle =  agg::triangle_cap,
+        CapTriangleIn = agg::triangle_revert_cap,
     };
 
     enum TextAlignment
